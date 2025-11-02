@@ -8,6 +8,7 @@ public class RoomBillzNotificationServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RoomBillzNotificationServiceApplication.class, args);
+		System.out.println("************************************************** RoomBillz Notification Service Started Successfully ************************************************************");
 	}
 
 }

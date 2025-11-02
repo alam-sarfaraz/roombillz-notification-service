@@ -19,8 +19,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
 	    info = @Info(
 	        title = "RoomBillz Notification Service",
 	        version = "v1",
-	        description = "Welcome to the RoomBillz Notification Service — a microservice responsible for managing and sending notifications (email, SMS, or in-app) across the RoomBillz platform. It ensures users stay updated with billing, payments, and group activity in real-time.",
-	        termsOfService = "https://roombillz.com/terms",
+	        description = "Microservice responsible for sending notifications (email, SMS, or in-app) within the RoomBillz application. It ensures users stay informed about bills, payments, and group activity updates in real time.",
 	        contact = @Contact(
 	            name = "Sarfaraz Alam",
 	            email = "sarfarazalam2702@gmail.com",
@@ -32,12 +31,22 @@ import io.swagger.v3.oas.annotations.servers.Server;
 	        )
 	    ),
 	    servers = {
-	        @Server(url = "http://localhost:8082", description = "Local Development Server"),
-	        @Server(url = "https://api.roombillz.com", description = "Production Server")
+	        @Server(
+	            url = "http://localhost:8082/api/v1/roomBillz/notification",
+	            description = "Local Notification Service Server"
+	        ),
+	        @Server(
+		            url = "https://qa/api.roombillz.com/api/v1/roomBillz/notification",
+		            description = "QA Server"
+		        ),
+	        @Server(
+	            url = "https://api.roombillz.com/api/v1/roomBillz/notification",
+	            description = "Production Server"
+	        )
 	    },
 	    externalDocs = @ExternalDocumentation(
-	        description = "RoomBillz Notifiation service API Documentation and Developer Guide",
-	        url = "https://roombillz.com/docs"
+	        description = "RoomBillz Notification API Documentation",
+	        url = "https://roombillz.com/docs/notification"
 	    )
 	)
 public class RoomBillzNotificationServiceApplication {

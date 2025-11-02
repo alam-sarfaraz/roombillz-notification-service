@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-@Tag(name = "Notification Controller",description = "APIs for managing and sending notifications (email, SMS, or in-app) in the RoomBillz application")
-@RequestMapping(path = "/api/v1/roomBillz/notifications", produces = {MediaType.APPLICATION_JSON_VALUE})
+@Tag(name = "Notification Detail Controller",description = "APIs for managing and sending notifications (email, SMS, or in-app) in the RoomBillz application")
+@RequestMapping(path = "notificationDetail", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
 public interface INotificationController {
 

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 @Tag(name = "Notification Detail Controller",description = "APIs for managing and sending notifications (email, SMS, or in-app) in the RoomBillz application")
-@RequestMapping(path = "notificationDetail", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path = "/notificationDetail", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
 public interface INotificationController {
 

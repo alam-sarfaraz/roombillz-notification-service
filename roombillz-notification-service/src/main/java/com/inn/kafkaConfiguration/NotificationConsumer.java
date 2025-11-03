@@ -22,7 +22,7 @@ public class NotificationConsumer {
 			       containerFactory = "kafkaListenerContainerFactory")
     public void eventListener(EventMessage message,Acknowledgment ack) {
 		logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "eventListener");
-    	logger.info("Event received from RoomBillz Service:{}",kv("Message", message.getMessage()));
+    	logger.info("Event received from RoomBillz Service:{}",kv("Message", message));
         // Process event and send notification
     }
 }

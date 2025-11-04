@@ -32,15 +32,15 @@ import io.swagger.v3.oas.annotations.servers.Server;
 	    ),
 	    servers = {
 	        @Server(
-	            url = "http://localhost:8082/api/v1/roomBillz/notification",
+	            url = "http://localhost:8082/api/v1/notification",
 	            description = "Local Notification Service Server"
 	        ),
 	        @Server(
-		            url = "https://qa/api.roombillz.com/api/v1/roomBillz/notification",
+		            url = "https://qa/api.roombillz.com/api/v1/notification",
 		            description = "QA Server"
 		        ),
 	        @Server(
-	            url = "https://api.roombillz.com/api/v1/roomBillz/notification",
+	            url = "https://api.roombillz.com/api/v1/notification",
 	            description = "Production Server"
 	        )
 	    },

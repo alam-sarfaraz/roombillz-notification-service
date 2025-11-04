@@ -6,6 +6,9 @@ server:
 spring:
   application:
     name: ROOMBILLZ-NOTIFICATION-SERVICE
+  main:
+    allow-bean-definition-overriding: true
+        
 #Database Configuration     
   datasource:
     url: jdbc:mysql://localhost:3306/roombillz_notification
@@ -27,7 +30,7 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
-      
+
 #Kafka Configuration
   kafka:
     bootstrap-servers: localhost:9092
@@ -49,14 +52,38 @@ kafka:
     roomBillz: roombillz-group
     notification: roomBillz-notification-group
     
-      
-#Acatuator Configuration    
+#Feign client configuration
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: FULL
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+# Base URL of RoomBillz Service (used by Feign)
+roombillz:
+  service:
+    url: http://localhost:8081/api/v1/roomBillz      
+
+#Logging
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.openfeign: DEBUG
+    com.inn.client: DEBUG
+
+#Actuator endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health, info, beans, env, metrics
   endpoint:
     health:
-      show-details: always
-      
+      show-details: always     

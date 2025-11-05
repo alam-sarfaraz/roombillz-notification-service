@@ -100,11 +100,15 @@ management:
       enabled: true
     readinessstate:
       enabled: true
-#Actuator endpoints
+
+#Acatuator Configuration
   endpoints:
     web:
       exposure:
-        include: health, info, beans, env, metrics
+        include: health, info, beans, env, metrics,prometheus
   endpoint:
     health:
-      show-details: always     
+      show-details: always
+    prometheus:
+      enabled: true      
+     

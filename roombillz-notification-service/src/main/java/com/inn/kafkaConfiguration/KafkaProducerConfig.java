@@ -13,7 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import com.inn.dto.EventMessage;
+import com.inn.dto.EventMessageDTO;
 
 @Configuration
 public class KafkaProducerConfig {
@@ -31,12 +31,12 @@ public class KafkaProducerConfig {
 	}
 
 	@Bean
-	public ProducerFactory<String, EventMessage> producerFactory() {
+	public ProducerFactory<String, EventMessageDTO> producerFactory() {
 		return new DefaultKafkaProducerFactory<>(producerConfigs());
 	}
 
 	@Bean
-	public KafkaTemplate<String, EventMessage> kafkaTemplate() {
+	public KafkaTemplate<String, EventMessageDTO> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
 	}
 }

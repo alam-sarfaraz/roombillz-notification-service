@@ -10,7 +10,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
-import com.inn.dto.EventMessage;
+import com.inn.dto.EventMessageDTO;
 import com.inn.notificationConstants.NotificationServiceConstant;
 
 @Service
@@ -20,7 +20,7 @@ public class NotificationConsumer {
 
 	@KafkaListener(topics = "${kafka.topics.roomBillz}",groupId = "${kafka.groups.notification}",
 			       containerFactory = "kafkaListenerContainerFactory")
-    public void eventListener(EventMessage message,Acknowledgment ack) {
+    public void eventListener(EventMessageDTO message,Acknowledgment ack) {
 		logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "eventListener");
     	logger.info("Event received from RoomBillz Service:{}",kv("Message", message));
         // Process event and send notification

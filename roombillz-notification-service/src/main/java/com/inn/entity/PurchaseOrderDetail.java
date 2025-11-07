@@ -1,14 +1,19 @@
 package com.inn.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
@@ -38,9 +43,6 @@ public class PurchaseOrderDetail extends BaseEntity {
 	@Column(name = "USER_NAME")
 	private String userName;
 
-	@Column(name = "USER_ID")
-	private String userId;
-
 	@Column(name = "FIRST_NAME")
 	private String firstName;
 
@@ -56,9 +58,6 @@ public class PurchaseOrderDetail extends BaseEntity {
 	@Column(name = "MOBILE_NUMBER")
 	private String mobileNumber;
 
-	@Column(name = "GROUP_ID")
-	private String groupId;
-
 	@Column(name = "GROUP_NAME")
 	private String groupName;
 
@@ -73,4 +72,7 @@ public class PurchaseOrderDetail extends BaseEntity {
 	
 	@Column(name = "MONTH")
 	private String month;
+
+	@OneToMany(mappedBy = "purchaseOrderDetail", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<ApproverUser> approverUsers = new ArrayList<>();
 }

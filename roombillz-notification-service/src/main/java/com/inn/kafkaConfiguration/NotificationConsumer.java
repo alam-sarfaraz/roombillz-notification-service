@@ -6,6 +6,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
@@ -14,18 +15,21 @@ import com.inn.converter.JsonUtil;
 import com.inn.dto.EventMessageDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
 import com.inn.notificationConstants.NotificationServiceConstant;
+import com.inn.service.IPurchaseOrderDetailService;
 
 @Service
 public class NotificationConsumer {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NotificationConsumer.class);
+	
+	@Autowired
+	IPurchaseOrderDetailService purchaseOrderDetailService;
 
 	@KafkaListener(topics = "${kafka.topics.roomBillz}",groupId = "${kafka.groups.notification}",containerFactory = "kafkaListenerContainerFactory")
 	public void eventListener(EventMessageDTO message, Acknowledgment ack) {
 	    logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "eventListener");
 	    logger.info("Event received from RoomBillz Service: {}", kv("Message",message));
 	    parsedDataForEntity(message);
-	    logger.info("Converted DTO: {}", kv("EventMessageDTO",message));
 	    ack.acknowledge();
 	}
 	
@@ -53,5 +57,6 @@ public class NotificationConsumer {
 		logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "createPurchaseOrderDetail");
 		PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotifiEvent = JsonUtil.fromJson(message,PurchaseOrderDetailNotificationEvent.class);
 		logger.info("EventType received from RoomBillz Service: {}", kv("PurchaseId",purchaseOrderDetailNotifiEvent.getPurchaseId()));
+		purchaseOrderDetailService.createPurchaseOrder(purchaseOrderDetailNotifiEvent);
 	}
 }

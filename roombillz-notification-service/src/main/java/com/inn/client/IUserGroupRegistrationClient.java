@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "ROOMBILLZ-SERVICE",configuration = {FeignConfig.class,FeignRetryConfig.class})
+@FeignClient(name = "ROOMBILLZ-SERVICE",path ="/api/v1/roomBillz/userGroupRegistration",configuration = {FeignConfig.class,FeignRetryConfig.class})
 public interface IUserGroupRegistrationClient {
 	
-	@GetMapping(path = "/api/v1/roomBillz/userGroupRegistration/getUserListByGroupName", produces = {MediaType.APPLICATION_JSON_VALUE})
+	@GetMapping(path = "/getUserListByGroupName", produces = {MediaType.APPLICATION_JSON_VALUE})
 	ResponseEntity<List<String>> getUserListByGroupName(@RequestParam(name = "groupName") String groupName);
 
 

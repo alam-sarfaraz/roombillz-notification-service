@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.inn.dto.GroupDetail;
 
-@FeignClient(name = "ROOMBILLZ-SERVICE",configuration = {FeignConfig.class,FeignRetryConfig.class})
+@FeignClient(name = "ROOMBILLZ-SERVICE", path ="/api/v1/roomBillz/groupDetail", configuration = {FeignConfig.class,FeignRetryConfig.class})
 public interface IGroupDetailClient {
 	
-	@GetMapping(path = "/api/v1/roomBillz/groupDetail/findByGroupName")
+	@GetMapping(path = "/findByGroupName")
     ResponseEntity<GroupDetail> findByGroupName(@RequestParam(name = "groupName") String groupName);
 }

@@ -43,7 +43,7 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	                .map(user -> {
 	                    ApproverUser approver = new ApproverUser();
 	                    approver.setUsername(user);
-	                    approver.setStatus("PENDING");
+	                    approver.setStatus(NotificationServiceConstant.PENDING);
 	                    approver.setPurchaseOrderDetail(purchaseOrderDetail); 
 	                    return approver;
 	                }).collect(Collectors.toList());

@@ -15,4 +15,6 @@ public class NotificationServiceConstant {
 	public static final String REJECTED = "Rejected";
 	public static final String ERROR_MESSAGE = "Error Message :";
 	public static final String PURCHASE_ORDER_CREATED ="PURCHASE_ORDER_CREATED";
+	public static final String SUCCESS = "Success";
+	public static final String FAILED = "Failed";
 }

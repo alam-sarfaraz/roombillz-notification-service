@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,16 +18,20 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventMessage implements Serializable {
+public class EventMessage extends BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Integer id;
 
+	@Column(name = "ROOMBILLZ_ID")
+	private Integer roomBillzId;
+	
 	@Column(name = "EVENT_TYPE")
 	private String eventType;
 
+	@Lob
 	@Column(name = "MESSAGE", columnDefinition = "TEXT")
 	private String message;
 

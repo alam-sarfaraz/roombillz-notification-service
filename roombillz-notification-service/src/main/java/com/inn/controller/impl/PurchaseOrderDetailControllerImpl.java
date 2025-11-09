@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.inn.controller.IPurchaseOrderDetailController;
+import com.inn.dto.ApproveRejectDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
 import com.inn.dto.ResponseDto;
 import com.inn.logs.LogRequestResponse;
@@ -31,6 +32,30 @@ public class PurchaseOrderDetailControllerImpl implements IPurchaseOrderDetailCo
 		try {
 			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "createPurchaseOrder {}",kv("PurchaseOrderDetail", purchaseOrderDetailNotificationEvent));
 			return iPurchaseOrderDetailService.createPurchaseOrder(purchaseOrderDetailNotificationEvent);
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
+
+	@Override
+	@LogRequestResponse
+	public ResponseEntity<ResponseDto> approveRejectPurchaseOrderDetail(@Valid ApproveRejectDTO approveRejectDTO) {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "approveRejectPurchaseOrderDetail {}",kv("ApproveRejectDTO", approveRejectDTO));
+			return iPurchaseOrderDetailService.approveRejectPurchaseOrderDetail(approveRejectDTO);
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
+
+	@Override
+	@LogRequestResponse
+	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus() {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "updateApproveRejectPurchaseOrderDetailStatus:");
+			return iPurchaseOrderDetailService.updateApproveRejectPurchaseOrderDetailStatus();
 		} catch (Exception e) {
 			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
 			throw e;

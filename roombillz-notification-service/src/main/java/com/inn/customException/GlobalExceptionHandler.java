@@ -42,4 +42,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
 		errorResponseDto.setErrorTime(LocalDateTime.now());
 		return new ResponseEntity<>(errorResponseDto,HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
+	@ExceptionHandler(PurchaseOrderNotFoundException.class)
+	public ResponseEntity<ErrorResponseDto> handlePurchaseOrderNotFoundException(PurchaseOrderNotFoundException purchaseOrderNotFoundException,WebRequest webRequest){
+		ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+		errorResponseDto.setApipath(webRequest.getDescription(false));
+		errorResponseDto.setErrorCode(HttpStatus.BAD_REQUEST);
+		errorResponseDto.setErrorMessage(purchaseOrderNotFoundException.getMessage());
+		errorResponseDto.setErrorTime(LocalDateTime.now());
+		return new ResponseEntity<>(errorResponseDto,HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(NotificationServiceException.class)
+	public ResponseEntity<ErrorResponseDto> handleNotificationServiceException(NotificationServiceException notificationServiceException,WebRequest webRequest){
+		ErrorResponseDto errorResponseDto = new ErrorResponseDto();
+		errorResponseDto.setApipath(webRequest.getDescription(false));
+		errorResponseDto.setErrorCode(HttpStatus.BAD_REQUEST);
+		errorResponseDto.setErrorMessage(notificationServiceException.getMessage());
+		errorResponseDto.setErrorTime(LocalDateTime.now());
+		return new ResponseEntity<>(errorResponseDto,HttpStatus.NOT_FOUND);
+	}
 }

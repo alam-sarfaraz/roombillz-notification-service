@@ -13,6 +13,7 @@ public class NotificationServiceConstant {
 	public static final String PARTIALLY_APPROVED = "Partially Approved";
 	public static final String APPROVED = "Approved";
 	public static final String REJECTED = "Rejected";
+	public static final String WAITING_FOR_APPROVAL = "Waiting for Approval";
 	public static final String ERROR_MESSAGE = "Error Message :";
 	public static final String PURCHASE_ORDER_CREATED ="PURCHASE_ORDER_CREATED";
 	public static final String SUCCESS = "Success";

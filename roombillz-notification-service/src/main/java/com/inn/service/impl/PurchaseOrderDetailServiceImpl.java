@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.inn.client.IUserGroupRegistrationClient;
+import com.inn.customException.NotificationServiceException;
+import com.inn.customException.PurchaseOrderNotFoundException;
+import com.inn.dto.ApproveRejectDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
 import com.inn.dto.ResponseDto;
 import com.inn.entity.ApproverUser;
@@ -79,6 +82,86 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 		return purchaseOrderDetail;
 		
 	}
+
+	@Override
+	public ResponseEntity<ResponseDto> approveRejectPurchaseOrderDetail(ApproveRejectDTO approveRejectDTO) {
+	    try {
+	        logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "approveRejectPurchaseOrderDetail {}",kv("ApproveRejectDTO", approveRejectDTO));
+
+	        PurchaseOrderDetail pod = iPurchaseOrderDetailRepository.findByPurchaseId(approveRejectDTO.getPurchaseId())
+	                                  .orElseThrow(() -> new PurchaseOrderNotFoundException("Purchase Order Detail ","PurchaseId",approveRejectDTO.getPurchaseId()));
+
+	        List<ApproverUser> approverUsersList = pod.getApproverUsers();
+	        // Find existing user record
+	        ApproverUser approver = approverUsersList.stream()
+	                .filter(e -> e.getUsername().equalsIgnoreCase(approveRejectDTO.getUsername()))
+	                .findFirst()
+	                .orElseThrow(() ->  new PurchaseOrderNotFoundException("Approver User Detail","Approver Username",approveRejectDTO.getUsername()));
+
+	        // Update status and reason
+	        approver.setStatus(approveRejectDTO.getStatus());
+	        approver.setReason(approveRejectDTO.getReason());
+	        iPurchaseOrderDetailRepository.save(pod);
+	        logger.info("Purchase Order updated successfully.");
+	        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("200", "Purchase Order updated successfully."));
+	    } catch (Exception e) {
+	        logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,
+	                kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+	        throw e;
+	    }
+	}
+
+	@Override
+	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus() {
+	    try {
+	        logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "updateApproveRejectPurchaseOrderDetailStatus");
+
+	        List<PurchaseOrderDetail> podList = iPurchaseOrderDetailRepository.findAll();
+	        if (podList == null || podList.isEmpty()) {
+	            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("400", "Purchase Order Details not found."));
+	        }
+
+	        for (PurchaseOrderDetail pod : podList) {
+	            List<ApproverUser> approvers = pod.getApproverUsers();
+
+	            if (approvers == null || approvers.isEmpty()) {
+	                continue;
+	            }
+	            
+	            boolean anyRejected = approvers.stream()
+	                    .anyMatch(a -> NotificationServiceConstant.REJECTED.equalsIgnoreCase(a.getStatus()));
+
+	            boolean allApproved = approvers.stream()
+	                    .allMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
+
+	            boolean anyApproved = approvers.stream()
+	                    .anyMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
+	            
+	            String finalStatus;
+	            if (anyRejected) {
+	                finalStatus = NotificationServiceConstant.REJECTED;
+	            } else if (allApproved) {
+	                finalStatus =  NotificationServiceConstant.APPROVED;
+	            } else if (anyApproved) {
+	                finalStatus = NotificationServiceConstant.PARTIALLY_APPROVED;
+	            } else {
+	                finalStatus = NotificationServiceConstant.WAITING_FOR_APPROVAL;
+	            }
+
+	            pod.setStatus(finalStatus);
+	            iPurchaseOrderDetailRepository.save(pod);
+	        }
+	        logger.info("Purchase Order statuses updated successfully.");
+	        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("200", "Purchase Order statuses updated successfully."));
+	    } catch (Exception e) {
+	        logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,
+	                kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+	        throw e;
+	    }
+	}
+
+
+
 
 
 }

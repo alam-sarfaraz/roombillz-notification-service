@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.inn.converter.JsonUtil;
 import com.inn.dto.EventMessageCreateRequestDto;
-import com.inn.dto.EventMessageDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
 import com.inn.dto.ResponseDto;
 import com.inn.entity.EventMessage;
@@ -36,6 +35,7 @@ public class EventMessageServiceImpl implements IEventMessageService {
 		try {
 			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "createEvent :", kv("EventMessageCreateRequestDto", eventMessageCreateRequestDto));
 			EventMessage eventMessage = new EventMessage();
+			eventMessage.setPurchaseId(eventMessageCreateRequestDto.getPurchaseId());
 			eventMessage.setRoomBillzId(eventMessageCreateRequestDto.getId());
 			eventMessage.setEventType(eventMessageCreateRequestDto.getEventType());
 			eventMessage.setMessage(eventMessageCreateRequestDto.getMessage());

@@ -24,6 +24,9 @@ public class EventMessage extends BaseEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
 	private Integer id;
+	
+	@Column(name = "PURCHASE_ID")
+	private String purchaseId;
 
 	@Column(name = "ROOMBILLZ_ID")
 	private Integer roomBillzId;

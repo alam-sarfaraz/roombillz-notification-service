@@ -12,8 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.inn.client.IPurchaseOrderDetailClient;
 import com.inn.client.IUserGroupRegistrationClient;
-import com.inn.customException.NotificationServiceException;
 import com.inn.customException.PurchaseOrderNotFoundException;
 import com.inn.dto.ApproveRejectDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
@@ -23,6 +23,8 @@ import com.inn.entity.PurchaseOrderDetail;
 import com.inn.notificationConstants.NotificationServiceConstant;
 import com.inn.repository.IPurchaseOrderDetailRepository;
 import com.inn.service.IPurchaseOrderDetailService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailService{
@@ -34,6 +36,9 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	
 	@Autowired
 	IUserGroupRegistrationClient iUserGroupRegistrationClient;
+	
+	@Autowired
+	IPurchaseOrderDetailClient iPurchaseOrderDetailClient; 
 
 	@Override
 	public ResponseEntity<ResponseDto> createPurchaseOrder(PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotificationEvent) {
@@ -112,6 +117,7 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	}
 
 	@Override
+	@Transactional
 	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus() {
 	    try {
 	        logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "updateApproveRejectPurchaseOrderDetailStatus");
@@ -149,6 +155,10 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	            }
 
 	            pod.setStatus(finalStatus);
+	            
+	            // Update status to RoomBillz Purchase Order Detail Status.
+	            iPurchaseOrderDetailClient.updatePODetailStatusByPurchaseId(pod.getPurchaseId(), finalStatus);
+	            
 	            iPurchaseOrderDetailRepository.save(pod);
 	        }
 	        logger.info("Purchase Order statuses updated successfully.");

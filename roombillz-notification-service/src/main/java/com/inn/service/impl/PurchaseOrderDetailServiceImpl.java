@@ -3,6 +3,7 @@ package com.inn.service.impl;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -44,6 +45,11 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	public ResponseEntity<ResponseDto> createPurchaseOrder(PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotificationEvent) {
 	    try {
 	        logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "createPurchaseOrder {}",kv("PurchaseOrderDetailNotificationEvent", purchaseOrderDetailNotificationEvent));
+	     // Validate if Purchase Order already exists
+	        if (iPurchaseOrderDetailRepository.findByPurchaseId(purchaseOrderDetailNotificationEvent.getPurchaseId()).isPresent()) {
+	            logger.warn("Purchase Order already exists for PurchaseId: {}", purchaseOrderDetailNotificationEvent.getPurchaseId());
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDto("400", "Purchase Order detail already exists"));
+	        }
 	        List<String> userList = iUserGroupRegistrationClient.getUserListByGroupName(purchaseOrderDetailNotificationEvent.getGroupName()).getBody();
 	        logger.info("User List detail from RoomBillz: {}",kv("UserList", userList));
 	        PurchaseOrderDetail purchaseOrderDetail = mapDataToPurchaseOrderDetail(purchaseOrderDetailNotificationEvent);

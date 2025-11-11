@@ -3,7 +3,6 @@ package com.inn.service.impl;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -176,7 +175,17 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	    }
 	}
 
-
+	@Override
+	public ResponseEntity<ResponseDto> deleteAllPurchaseOrderDetails() {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "deleteAllPurchaseOrderDetails");
+			iPurchaseOrderDetailRepository.deleteAll();
+			return ResponseEntity.ok(new ResponseDto("200", "Purchase Order detail(s) deleted processed successfully")); 
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
 
 
 

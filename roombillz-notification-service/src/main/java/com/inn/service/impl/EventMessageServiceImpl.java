@@ -120,9 +120,26 @@ public class EventMessageServiceImpl implements IEventMessageService {
 	}
 	
 	public void createPurchaseOrderDetail(String message) {
+		try {
 		logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "createPurchaseOrderDetail");
 		PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotifiEvent = JsonUtil.fromJson(message,PurchaseOrderDetailNotificationEvent.class);
 		logger.info("EventType received from RoomBillz Service: {}", kv("PurchaseId",purchaseOrderDetailNotifiEvent.getPurchaseId()));
 		purchaseOrderDetailService.createPurchaseOrder(purchaseOrderDetailNotifiEvent);
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
+	
+	@Override
+	public ResponseEntity<ResponseDto> deleteAllEventMessage() {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "deleteAllEventMessage :");
+			eventMessageRepository.deleteAll();
+			return ResponseEntity.ok(new ResponseDto("200", "EventMessage deleted successfully."));
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
 	}
 }

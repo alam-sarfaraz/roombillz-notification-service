@@ -3,6 +3,7 @@ package com.inn.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,5 +63,12 @@ public interface IEventMessageController {
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
 	@GetMapping("/sendFailedPurchaseOrderToNotification")
 	public ResponseEntity<ResponseDto> sendFailedPurchaseOrderDetailToNotificationService();
+	
+	@Operation(summary = "Delete all event message data", description = "Deletes all event messages stored in the system")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "All event messages deleted successfully"),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
+	@DeleteMapping(path = "/deleteAllEventMessage", produces = MediaType.APPLICATION_JSON_VALUE)
+	ResponseEntity<ResponseDto> deleteAllEventMessage();
 
 }

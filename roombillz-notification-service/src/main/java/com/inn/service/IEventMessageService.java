@@ -16,4 +16,6 @@ public interface IEventMessageService {
 
 	public ResponseEntity<ResponseDto> sendFailedPurchaseOrderDetailToNotificationService();
 
+	public ResponseEntity<ResponseDto> deleteAllEventMessage();
+
 }

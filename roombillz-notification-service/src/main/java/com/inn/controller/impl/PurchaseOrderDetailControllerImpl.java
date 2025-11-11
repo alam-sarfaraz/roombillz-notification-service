@@ -61,4 +61,17 @@ public class PurchaseOrderDetailControllerImpl implements IPurchaseOrderDetailCo
 			throw e;
 		}
 	}
+	
+	@Override
+	@LogRequestResponse
+	public ResponseEntity<ResponseDto> deleteAllPurchaseOrderDetails() {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "deleteAllPurchaseOrderDetails");
+			return iPurchaseOrderDetailService.deleteAllPurchaseOrderDetails();
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
+
 }

@@ -14,4 +14,6 @@ public interface IPurchaseOrderDetailService {
 
 	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus();
 
+	public ResponseEntity<ResponseDto> deleteAllPurchaseOrderDetails();
+
 }

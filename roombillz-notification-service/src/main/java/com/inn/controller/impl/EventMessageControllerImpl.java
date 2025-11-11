@@ -72,4 +72,15 @@ public class EventMessageControllerImpl implements IEventMessageController {
 		}
 	}
 
+	@Override
+	@LogRequestResponse
+	public ResponseEntity<ResponseDto> deleteAllEventMessage() {
+		try {
+			logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "deleteAllEventMessage :");
+			return eventMessageService.deleteAllEventMessage();
+		} catch (Exception e) {
+			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
+			throw e;
+		}
+	}
 }

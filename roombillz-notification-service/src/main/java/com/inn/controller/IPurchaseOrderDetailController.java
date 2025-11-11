@@ -3,6 +3,7 @@ package com.inn.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -56,5 +57,12 @@ public interface IPurchaseOrderDetailController {
 	})
 	@GetMapping(path = "/updateApproveRejectPurchaseOrderDetailStatus", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus();
+	
+	@Operation(summary = "Delete all Purchase Order Details", description = "Deletes all Purchase Order Details from the system")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "All Purchase Order Details deleted successfully"),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
+	@DeleteMapping(path = "/delete-all", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseDto> deleteAllPurchaseOrderDetails();
 
 }

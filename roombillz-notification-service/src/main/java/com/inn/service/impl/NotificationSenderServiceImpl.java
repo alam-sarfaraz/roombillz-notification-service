@@ -61,5 +61,33 @@ public class NotificationSenderServiceImpl implements INotificationSenderService
 	    }
 	}
 
+	@Override
+	public ResponseEntity<ResponseDto> sendPurchaseOrdeApprovedRejectedEmail(String[] recipients, Map<String, Object> model) {
+	    logger.info("Inside sendPurchaseOrdeApprovedRejectedEmail: Recipients={}, Model={}", recipients, model);
+	    try {
+	        String html = templateService.render("templates/pod-status-update.vm", model);
+	        byte[] pdfBytes = pdfService.generatePdfFromHtml(html);
+
+	        String purchaseId = (String) model.get("purchaseId");
+	        String status = (String) model.get("status");
+	        String currentApprover = (String) model.get("currentApprover");
+
+	        MimeMessage message = mailSender.createMimeMessage();
+	        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+	        helper.setTo("sarfarazalam2702@gmail.com");
+	        helper.setSubject("Purchase Order " + status + " by " + currentApprover + " - " + purchaseId);
+	        helper.setText(html, true);
+	        helper.addAttachment("purchase-order-" + purchaseId + ".pdf",new ByteArrayResource(pdfBytes));
+	        mailSender.send(message);
+	        return ResponseEntity.ok(new ResponseDto("200", "Email sent successfully"));
+	    } catch (Exception e) {
+	        logger.error("Error in sendPurchaseOrdeApprovedRejectedEmail", e);
+	        throw new RuntimeException("Failed to send purchase order approved/rejected email", e);
+	    }
+	}
+
+	
+	
+
 
 }

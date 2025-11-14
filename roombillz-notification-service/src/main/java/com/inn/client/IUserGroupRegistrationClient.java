@@ -13,6 +13,8 @@ public interface IUserGroupRegistrationClient {
 	
 	@GetMapping(path = "/getUserListByGroupName", produces = {MediaType.APPLICATION_JSON_VALUE})
 	ResponseEntity<List<String>> getUserListByGroupName(@RequestParam(name = "groupName") String groupName);
-
+	
+	@GetMapping(path = "/getEmailListByGroupName", produces = {MediaType.APPLICATION_JSON_VALUE})
+	ResponseEntity<List<String>> getEmailListByGroupName(@RequestParam(name = "groupName") String groupName);
 
 }

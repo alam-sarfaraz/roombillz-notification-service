@@ -2,6 +2,8 @@ package com.inn.service.impl;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,6 +129,10 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	        // Update status and reason
 	        approver.setStatus(approveRejectDTO.getStatus());
 	        approver.setReason(approveRejectDTO.getReason());
+	        
+	        //Sending mail after approved or reject
+	        sendStatusEmailToAllApprovers(pod,approveRejectDTO);
+	        
 	        iPurchaseOrderDetailRepository.save(pod);
 	        logger.info("Purchase Order updated successfully.");
 	        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("200", "Purchase Order updated successfully."));
@@ -136,6 +142,30 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	        throw e;
 	    }
 	}
+	
+	    private void sendStatusEmailToAllApprovers(PurchaseOrderDetail pod, ApproveRejectDTO dto) {
+
+	    try {
+	        // 1. Get all recipients
+	    	List<String> recipients = iUserGroupRegistrationClient.getEmailListByGroupName(pod.getGroupName()).getBody();
+	        // 2. Model data
+	        Map<String, Object> model = new HashMap<>();
+	        model.put("purchaseId", pod.getPurchaseId());
+	        model.put("amount", pod.getTotalPrice());
+	        model.put("currentApprover", dto.getUsername());
+	        model.put("status", dto.getStatus());
+	        model.put("reason", dto.getReason());
+	        model.put("approvalTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+	        String[] array = recipients.toArray(String[]::new);
+	        iNotificationSenderService.sendPurchaseOrdeApprovedRejectedEmail(array, model);
+	        logger.info("Status Email + PDF sent to all approvers.");
+
+	    } catch (Exception e) {
+	        logger.error("Failed to send status email: {}", e.getMessage());
+	        throw new RuntimeException(e);
+	    }
+	}
+
 
 	@Override
 	@Transactional

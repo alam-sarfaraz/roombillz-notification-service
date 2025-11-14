@@ -2,7 +2,10 @@ package com.inn.service.impl;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -19,9 +22,12 @@ import com.inn.dto.ApproveRejectDTO;
 import com.inn.dto.PurchaseOrderDetailNotificationEvent;
 import com.inn.dto.ResponseDto;
 import com.inn.entity.ApproverUser;
+import com.inn.entity.InvoiceDetail;
+import com.inn.entity.LineItemDetail;
 import com.inn.entity.PurchaseOrderDetail;
 import com.inn.notificationConstants.NotificationServiceConstant;
 import com.inn.repository.IPurchaseOrderDetailRepository;
+import com.inn.service.INotificationSenderService;
 import com.inn.service.IPurchaseOrderDetailService;
 
 import jakarta.transaction.Transactional;
@@ -39,6 +45,9 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	
 	@Autowired
 	IPurchaseOrderDetailClient iPurchaseOrderDetailClient; 
+	
+	@Autowired
+	INotificationSenderService iNotificationSenderService;
 
 	@Override
 	public ResponseEntity<ResponseDto> createPurchaseOrder(PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotificationEvent) {
@@ -62,9 +71,16 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	                }).collect(Collectors.toList());
 	        
 	        purchaseOrderDetail.setApproverUsers(approverUsersList);
+	        
 	        // Save parent, children will be saved automatically
 	        iPurchaseOrderDetailRepository.save(purchaseOrderDetail);
 	        logger.info("Purchase Order saved Successfully to Database ...........");
+	        
+	        // Sending Mail
+	        PurchaseOrderDetail  purchaseOrderDetails = iPurchaseOrderDetailClient.findPurchaseOrderDetailByPurchaseId(purchaseOrderDetail.getPurchaseId()).getBody();
+	        Map<String, Object> templateModel = toTemplateModel(purchaseOrderDetails);
+	        iNotificationSenderService.sendPurchaseOrderEmail(userList.toArray(String[]::new), templateModel);
+	        
 	        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto("201","Purchase Order saved Successfully."));
 	    } catch (Exception e) {
 	        logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, 
@@ -185,6 +201,58 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 			logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
 			throw e;
 		}
+	}
+	
+	public Map<String,Object>  toTemplateModel(PurchaseOrderDetail entity) {
+		 Map<String,Object> model = new HashMap<>();
+	        Map<String,Object> purchase = new HashMap<>();
+
+	        purchase.put("id", entity.getId());
+	        purchase.put("purchaseId", entity.getPurchaseId());
+	        purchase.put("purchaseDate", entity.getPurchaseDate() != null ? entity.getPurchaseDate().toString() : "");
+	        purchase.put("userName", entity.getUserName());
+	        purchase.put("firstName", entity.getFirstName());
+	        purchase.put("middleName", entity.getMiddleName());
+	        purchase.put("lastName", entity.getLastName());
+	        purchase.put("email", entity.getEmail());
+	        purchase.put("mobileNumber", entity.getMobileNumber());
+	        purchase.put("groupName", entity.getGroupName());
+	        purchase.put("status", entity.getStatus());
+	        purchase.put("totalPrice", entity.getTotalPrice());
+	        purchase.put("modeOfPayment", entity.getModeOfPayment());
+	        purchase.put("month", entity.getMonth());
+
+	        // line items
+	        List<Map<String,Object>> items = new ArrayList<>();
+	        if (entity.getLineItemDetails() != null) {
+	            for (LineItemDetail li : entity.getLineItemDetails()) {
+	                Map<String,Object> im = new HashMap<>();
+	                im.put("id", li.getId());
+	                im.put("itemName", li.getItemName());
+	                im.put("itemPrice", li.getItemPrice());
+	                im.put("unitPrice", li.getUnitPrice());
+	                im.put("quantity", li.getQuantity());
+	                items.add(im);
+	            }
+	        }
+	        purchase.put("lineItemDetails", items);
+
+	        // invoice details
+	        List<Map<String,Object>> invoices = new ArrayList<>();
+	        if (entity.getInvoiceDetails() != null) {
+	            for (InvoiceDetail inv : entity.getInvoiceDetails()) {
+	                Map<String,Object> im = new HashMap<>();
+	                im.put("id", inv.getId());
+	                im.put("fileName", inv.getFileName());
+	                im.put("filePath", inv.getFilePath());
+	                im.put("fileSize", inv.getFileSize());
+	                im.put("extension", inv.getExtension());
+	                invoices.add(im);
+	            }
+	        }
+	        purchase.put("invoiceDetails", invoices);
+	        model.put("purchase", purchase);
+	        return model;
 	}
 
 

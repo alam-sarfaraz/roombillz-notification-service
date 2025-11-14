@@ -31,6 +31,16 @@ spring:
     compatibility-verifier:
       enabled: false
 
+#Email Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sarfarazalam1825@gmail.com
+    password: ccscixhkbfdtqzcy
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
 #Kafka Configuration
   kafka:
     bootstrap-servers: localhost:9092
@@ -94,6 +104,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     registry-fetch-interval-seconds: 5
 
+app:
+  templates:
+    base-uri: "classpath:/templates/"
 management:
   health:
     livenessstate:

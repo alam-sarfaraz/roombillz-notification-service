@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #eef2f7;
+            padding: 25px;
+            color: #333;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 14px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+        }
+
+        /* ROOMBILLZ Heading */
+        .brand-header {
+            background: linear-gradient(90deg, #4b79ff, #6a11cb);
+            padding: 18px;
+            text-align: center;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.20);
+        }
+
+        /* Purchase Order Info Box */
+        .header {
+            padding: 18px;
+            border-radius: 12px;
+            background: #f5f8ff;
+            border-left: 5px solid #6a11cb;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .header div {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Section Titles */
+        .section-title {
+            margin-top: 30px;
+            font-size: 17px;
+            font-weight: bold;
+            color: #444;
+            border-left: 5px solid #4b79ff;
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th {
+            background: linear-gradient(90deg, #4b79ff, #6a11cb);
+            color: white;
+            padding: 10px;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        td {
+            padding: 8px;
+            font-size: 13px;
+            background: #ffffff;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        tr:nth-child(even) td {
+            background: #f1f5ff;
+        }
+
+        .small-info-table td {
+            background: #f7faff !important;
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        /* Total Box */
+        .total-box {
+            margin-top: 18px;
+            text-align: right;
+            background: #dce6ff;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            color: #2346d1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+
+        /* Footer */
+        .footer-note {
+            margin-top: 35px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="card">
+
+    <!-- ROOMBILLZ HEADER -->
+    <div class="brand-header">ROOMBILLZ</div>
+
+    <!-- PURCHASE ORDER HEADER -->
+    <div class="header">
+        <h2>Purchase Order: $!{purchase.purchaseId}</h2>
+        <div><strong>Date:</strong> $!{purchase.purchaseDate}</div>
+        <div><strong>Status:</strong> $!{purchase.status}</div>
+        <div><strong>Month:</strong> $!{purchase.month}</div>
+    </div>
+
+    <!-- USER DETAILS -->
+    <div class="section-title">User Details</div>
+
+    <table class="small-info-table">
+        <tr>
+            <td><strong>User Name:</strong> $!{purchase.userName}</td>
+            <td><strong>Email:</strong> $!{purchase.email}</td>
+        </tr>
+        <tr>
+            <td><strong>Name:</strong> $!{purchase.firstName} $!{purchase.middleName} $!{purchase.lastName}</td>
+            <td><strong>Mobile:</strong> $!{purchase.mobileNumber}</td>
+        </tr>
+        <tr>
+            <td><strong>Mode of Payment:</strong> $!{purchase.modeOfPayment}</td>
+            <td></td>
+        </tr>
+    </table>
+
+    <!-- GROUP -->
+    <div class="section-title">Group Details</div>
+
+    <table class="small-info-table">
+        <tr>
+            <td><strong>Group Name:</strong> $!{purchase.groupName}</td>
+        </tr>
+    </table>
+
+    <!-- LINE ITEMS -->
+    <div class="section-title">Line Items</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 40px;">ID</th>
+            <th>Item Name</th>
+            <th style="text-align:right;">Unit Price (₹)</th>
+            <th style="text-align:right;">Quantity</th>
+            <th style="text-align:right;">Item Price (₹)</th>
+        </tr>
+        </thead>
+        <tbody>
+        #foreach($item in $purchase.lineItemDetails)
+        <tr>
+            <td>$!item.id</td>
+            <td>$!item.itemName</td>
+            <td style="text-align:right;">$!item.unitPrice</td>
+            <td style="text-align:right;">$!item.quantity</td>
+            <td style="text-align:right;">$!item.itemPrice</td>
+        </tr>
+        #end
+        </tbody>
+    </table>
+
+    <!-- TOTAL -->
+    <div class="total-box">
+        Total Amount: ₹ $!{purchase.totalPrice}
+    </div>
+
+    <!-- INVOICE -->
+    <div class="section-title">Invoice Details</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width:40px;">ID</th>
+            <th>File Name</th>
+            <th>File Path</th>
+            <th>Extension</th>
+            <th style="text-align:right;">Size (KB)</th>
+        </tr>
+        </thead>
+        <tbody>
+        #foreach($inv in $purchase.invoiceDetails)
+        #set($sizeKB = $inv.fileSize / 1024)
+        <tr>
+            <td>$!inv.id</td>
+            <td>$!inv.fileName</td>
+            <td>$!inv.filePath</td>
+            <td>$!inv.extension</td>
+            <td style="text-align:right;">$!sizeKB</td>
+        </tr>
+        #end
+        </tbody>
+    </table>
+
+    <!-- FOOTER -->
+    <div class="footer-note">
+        This is an automated purchase order generated by <strong>RoomBillz Notification Service</strong>.
+    </div>
+
+</div>
+</body>
+</html>

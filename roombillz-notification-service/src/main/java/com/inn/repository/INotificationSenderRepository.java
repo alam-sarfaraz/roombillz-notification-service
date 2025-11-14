@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.inn.entity.NotificationDetail;
 
 @Repository
-public interface INotificationRepository extends JpaRepository<NotificationDetail, Integer>{
+public interface INotificationSenderRepository extends JpaRepository<NotificationDetail, Integer>{
 
 }

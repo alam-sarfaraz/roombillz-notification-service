@@ -86,6 +86,31 @@ public class NotificationSenderServiceImpl implements INotificationSenderService
 	    }
 	}
 
+	@Override
+	public ResponseEntity<ResponseDto> sendPurchaseOrderEmailUdateStatus(String[] recipients,Map<String, Object> purchaseModel) {
+		logger.info("Inside sendPurchaseOrderEmail: Recipients={}, Model={}", recipients, purchaseModel);
+	    try {
+	        // 1. Render HTML template
+	        String html = templateService.render("templates/purchase-order-update.vm", purchaseModel);
+	        // 2. PDF from HTML
+	        byte[] pdfBytes = pdfService.generatePdfFromHtml(html);
+	        // 3. Email
+	        MimeMessage message = mailSender.createMimeMessage();
+	        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+	        String purchaseId = (String) purchaseModel.get("purchaseId");
+	        helper.setTo("sarfarazalam2702@gmail.com");
+	        helper.setSubject("Purchase Order Updated - " + purchaseModel.get("purchaseOrderId"));
+	        helper.setText(html, true);
+	        // Attach PDF ONLY
+	        helper.addAttachment("purchase-order-status-update" + purchaseId + ".pdf", new ByteArrayResource(pdfBytes));
+	        mailSender.send(message);
+	        return ResponseEntity.ok(new ResponseDto("200", "Email sent successfully"));
+	    } catch (Exception e) {
+	        logger.error("Error in sendPurchaseOrderEmail", e);
+	        throw new RuntimeException("Failed to send purchase order email", e);
+	    }
+	}
+
 	
 	
 

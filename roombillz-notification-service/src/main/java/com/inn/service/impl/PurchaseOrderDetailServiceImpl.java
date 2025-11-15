@@ -2,6 +2,7 @@ package com.inn.service.impl;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import com.inn.entity.InvoiceDetail;
 import com.inn.entity.LineItemDetail;
 import com.inn.entity.PurchaseOrderDetail;
 import com.inn.notificationConstants.NotificationServiceConstant;
+import com.inn.repository.IApproverUserRepository;
 import com.inn.repository.IPurchaseOrderDetailRepository;
 import com.inn.service.INotificationSenderService;
 import com.inn.service.IPurchaseOrderDetailService;
@@ -50,6 +52,9 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	
 	@Autowired
 	INotificationSenderService iNotificationSenderService;
+	
+	@Autowired
+	IApproverUserRepository iApproverUserRepository;
 
 	@Override
 	public ResponseEntity<ResponseDto> createPurchaseOrder(PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotificationEvent) {
@@ -170,56 +175,84 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	@Override
 	@Transactional
 	public ResponseEntity<ResponseDto> updateApproveRejectPurchaseOrderDetailStatus() {
-	    try {
-	        logger.info(NotificationServiceConstant.INSIDE_THE_METHOD + "updateApproveRejectPurchaseOrderDetailStatus");
-
-	        List<PurchaseOrderDetail> podList = iPurchaseOrderDetailRepository.findAll();
-	        if (podList == null || podList.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("400", "Purchase Order Details not found."));
-	        }
-
-	        for (PurchaseOrderDetail pod : podList) {
-	            List<ApproverUser> approvers = pod.getApproverUsers();
-
-	            if (approvers == null || approvers.isEmpty()) {
-	                continue;
-	            }
-	            
-	            boolean anyRejected = approvers.stream()
-	                    .anyMatch(a -> NotificationServiceConstant.REJECTED.equalsIgnoreCase(a.getStatus()));
-
-	            boolean allApproved = approvers.stream()
-	                    .allMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
-
-	            boolean anyApproved = approvers.stream()
-	                    .anyMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
-	            
-	            String finalStatus;
-	            if (anyRejected) {
-	                finalStatus = NotificationServiceConstant.REJECTED;
-	            } else if (allApproved) {
-	                finalStatus =  NotificationServiceConstant.APPROVED;
-	            } else if (anyApproved) {
-	                finalStatus = NotificationServiceConstant.PARTIALLY_APPROVED;
-	            } else {
-	                finalStatus = NotificationServiceConstant.WAITING_FOR_APPROVAL;
+		 try {
+	            logger.info("Inside updateApproveRejectPurchaseOrderDetailStatus");
+	            List<PurchaseOrderDetail> podList = iPurchaseOrderDetailRepository.findAll();
+	            if (podList == null || podList.isEmpty()) {
+	                return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("400", "Purchase Order Details not found."));
 	            }
 
-	            pod.setStatus(finalStatus);
-	            
-	            // Update status to RoomBillz Purchase Order Detail Status.
-	            iPurchaseOrderDetailClient.updatePODetailStatusByPurchaseId(pod.getPurchaseId(), finalStatus);
-	            
-	            iPurchaseOrderDetailRepository.save(pod);
+	            for (PurchaseOrderDetail pod : podList) {
+
+	                String oldStatus = pod.getStatus() == null ? "" : pod.getStatus();
+
+	                List<ApproverUser> approvers = pod.getApproverUsers();
+	                if (approvers == null || approvers.isEmpty()) {
+	                    // nothing to evaluate
+	                    continue;
+	                }
+
+	                boolean anyRejected = approvers.stream()
+	                        .anyMatch(a -> NotificationServiceConstant.REJECTED.equalsIgnoreCase(a.getStatus()));
+
+	                boolean allApproved = approvers.stream()
+	                        .allMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
+
+	                boolean anyApproved = approvers.stream()
+	                        .anyMatch(a -> NotificationServiceConstant.APPROVED.equalsIgnoreCase(a.getStatus()));
+
+	                String finalStatus;
+	                if (anyRejected) {
+	                    finalStatus = NotificationServiceConstant.REJECTED;
+	                } else if (allApproved) {
+	                    finalStatus = NotificationServiceConstant.APPROVED;
+	                } else if (anyApproved) {
+	                    finalStatus = NotificationServiceConstant.PARTIALLY_APPROVED;
+	                } else {
+	                    finalStatus = NotificationServiceConstant.WAITING_FOR_APPROVAL;
+	                }
+
+	                if (!finalStatus.equalsIgnoreCase(oldStatus)) {
+	                    logger.info("Status changed for PurchaseId {}: {} -> {}", pod.getPurchaseId(), oldStatus, finalStatus);
+
+	                    // save updated status locally
+	                    pod.setStatus(finalStatus);
+	                    iPurchaseOrderDetailRepository.save(pod);
+
+	                    // update upstream system
+	                    try {
+	                        iPurchaseOrderDetailClient.updatePODetailStatusByPurchaseId(pod.getPurchaseId(), finalStatus);
+	                    } catch (Exception e) {
+	                        logger.error("Failed to call remote client for PO {} : {}", pod.getPurchaseId(), e.getMessage());
+	                    }
+	                    List<String> recipients = iUserGroupRegistrationClient.getEmailListByGroupName(pod.getGroupName()).getBody();
+	                    String[] array = recipients.toArray(String[]::new);
+	                    // Decide approvedBy — choose last approver who actioned APPROVED/REJECTED status
+	                    ApproverUser approverUserDetail = iApproverUserRepository.findTopByOrderByModifiedAtDesc();
+	                    String approvedBy = approverUserDetail.getUsername();
+	                    logger.info("ApprovedBy {}", approvedBy);
+	                    String approvalDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+	                    String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+	                    // build model for template (only POD fields)
+	                    Map<String, Object> model = new HashMap<>();
+	                    model.put("purchaseOrderId", pod.getPurchaseId());
+	                    model.put("status", finalStatus);
+	                    model.put("approvedBy", approvedBy);
+	                    model.put("approvalDate", approvalDate);
+	                    model.put("currentDate", currentDate);
+	                    model.put("comments", "Status changed from " + (oldStatus.isEmpty() ? "N/A" : oldStatus) + " to " + finalStatus);
+	                    model.put("viewLink", "https://app.roombillz.com/purchase/" + pod.getPurchaseId());
+	                    iNotificationSenderService.sendPurchaseOrderEmailUdateStatus(array,model);
+	                }
+	            }
+	            logger.info("Purchase Order statuses processed.");
+	            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("200", "Purchase Order statuses updated successfully."));
+	        } catch (Exception e) {
+	            logger.error("Error occurred: {}", e.getMessage(), e);
+	            throw e;
 	        }
-	        logger.info("Purchase Order statuses updated successfully.");
-	        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("200", "Purchase Order statuses updated successfully."));
-	    } catch (Exception e) {
-	        logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO,
-	                kv(NotificationServiceConstant.ERROR_MESSAGE, e.getMessage()));
-	        throw e;
 	    }
-	}
+
 
 	@Override
 	public ResponseEntity<ResponseDto> deleteAllPurchaseOrderDetails() {

@@ -12,5 +12,7 @@ public interface INotificationSenderService {
 	
 	public ResponseEntity<ResponseDto> sendPurchaseOrdeApprovedRejectedEmail(String[] recipients, Map<String,Object> model);
 	
+	public ResponseEntity<ResponseDto> sendPurchaseOrderEmailUdateStatus(String[] recipients, Map<String,Object> purchaseModel);
+	
 	
 }

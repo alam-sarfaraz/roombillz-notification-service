@@ -228,7 +228,7 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	                    List<String> recipients = iUserGroupRegistrationClient.getEmailListByGroupName(pod.getGroupName()).getBody();
 	                    String[] array = recipients.toArray(String[]::new);
 	                    // Decide approvedBy — choose last approver who actioned APPROVED/REJECTED status
-	                    ApproverUser approverUserDetail = iApproverUserRepository.findTopByPurchaseIdOrderByModifiedAtDesc(pod.getPurchaseId());
+	                    ApproverUser approverUserDetail = iApproverUserRepository.findTopByPurchaseOrderDetail_PurchaseIdOrderByModifiedAtDesc(pod.getPurchaseId());
 	                    String approvedBy = approverUserDetail.getUsername();
 	                    logger.info("ApprovedBy {}", approvedBy);
 	                    String approvalDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));

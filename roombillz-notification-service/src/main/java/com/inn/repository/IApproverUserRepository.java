@@ -8,6 +8,6 @@ import com.inn.entity.ApproverUser;
 @Repository
 public interface IApproverUserRepository extends JpaRepository<ApproverUser, Integer>{
 	
-	ApproverUser findTopByOrderByModifiedAtDesc();
+	ApproverUser findTopByPurchaseIdOrderByModifiedAtDesc(String purchaseId);
 
 }

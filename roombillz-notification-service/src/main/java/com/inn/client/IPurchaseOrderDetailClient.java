@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.inn.dto.ResponseDto;
 import com.inn.entity.PurchaseOrderDetail;
 
-@FeignClient(name = "ROOMBILLZ-SERVICE", path ="/api/v1/roomBillz/purchaseOrderDetail", configuration = {FeignConfig.class,FeignRetryConfig.class})
+@FeignClient(name = "ROOMBILLZ-SERVICE", url = "${roombillz.service.url}", path = "/purchaseOrderDetail", configuration = { FeignConfig.class, FeignRetryConfig.class })
 public interface IPurchaseOrderDetailClient {
-	
+
 	@PutMapping(path = "/updatePODetailStatusByPurchaseId", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<ResponseDto> updatePODetailStatusByPurchaseId(@RequestParam(name = "purchaseId") String purchaseId,
 			                                                     @RequestParam(name = "status") String status);
+
 	@GetMapping(path = "/findPurchaseOrderDetailByPurchaseId")
-    ResponseEntity<PurchaseOrderDetail> findPurchaseOrderDetailByPurchaseId(@RequestParam(name = "purchaseId") String purchaseId);
+	ResponseEntity<PurchaseOrderDetail> findPurchaseOrderDetailByPurchaseId(@RequestParam(name = "purchaseId") String purchaseId);
 }

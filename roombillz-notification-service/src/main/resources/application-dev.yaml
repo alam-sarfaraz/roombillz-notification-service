@@ -1,33 +1,26 @@
 server:
   port: 8082
   servlet:
-    context-path: /api/v1/notification
+    context-path: /api/v1/notification  
 
 spring:
   application:
     name: ROOMBILLZ-NOTIFICATION-SERVICE
-
   main:
     allow-bean-definition-overriding: true
-
-  # ===================================
-  # DATABASE CONFIG (LOCAL + DOCKER)
-  # ===================================
+        
+#Database Configuration     
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3306/roombillz_notification
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
+    url: jdbc:mysql://localhost:3306/roombillz_notification
+    username: root
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.MySQL8Dialect
-
-  # ===================================
-  # FILE UPLOAD CONFIG
-  # ===================================
+ 
   servlet:
     multipart:
       enabled: true
@@ -38,24 +31,19 @@ spring:
     compatibility-verifier:
       enabled: false
 
-  # ===================================
-  # EMAIL CONFIG (LOCAL + DOCKER SAFE)
-  # Avoid hardcoded credentials
-  # ===================================
+#Email Configuration
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:sarfarazalam1825@gmail.com}
-    password: ${MAIL_PASSWORD:ccscixhkbfdtqzcy}
+    username: sarfarazalam1825@gmail.com
+    password: ccscixhkbfdtqzcy
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
 
-  # ===================================
-  # KAFKA CONFIG (LOCAL + DOCKER)
-  # ===================================
+#Kafka Configuration
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
+    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -66,20 +54,15 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
-# Custom Topics + Groups
 kafka:
   topics:
     roomBillz: roomBillz-topic
     notification: roomBillz-notification-topic
-    document: roomBillz-document-topic
   groups:
     roomBillz: roombillz-group
     notification: roomBillz-notification-group
-    document: roomBillz-document-group
-
-# ===================================
-# FEIGN CONFIG
-# ===================================
+    
+#Feign client configuration
 feign:
   client:
     config:
@@ -93,56 +76,37 @@ feign:
     response:
       enabled: true
 
-# ===================================
-# ROOMBILLZ SERVICE URL (LOCAL + DOCKER)
-# ===================================
+# Base URL of RoomBillz Service (used by Feign)
 roombillz:
   service:
-    url: http://${ROOMBILLZ_HOST:localhost}:8081/api/v1/roomBillz
+    url: http://localhost:8081/api/v1/roomBillz      
 
-# ===================================
-# DOCUMENT SERVICE URL ADDED (LOCAL + DOCKER)
-# ===================================
-document:
-  service:
-    url: http://${DOCUMENT_HOST:localhost}:8084/api/v1/document
-
-# ===================================
-# LOGGING
-# ===================================
+#Logging
 logging:
   level:
     root: INFO
     org.springframework.cloud.openfeign: DEBUG
     com.inn.client: DEBUG
 
-# ===================================
-# EUREKA CONFIG (LOCAL + DOCKER)
-# ===================================
+#Eureka configuration
 eureka:
   instance:
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 20
+
     metadata-map:
-      environment: LOCAL
       version: v1
+      environment: LOCAL
       region: IN
 
   client:
     service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
     registry-fetch-interval-seconds: 5
 
-# ===================================
-# TEMPLATE PATHS
-# ===================================
 app:
   templates:
     base-uri: "classpath:/templates/"
-
-# ===================================
-# ACTUATOR + PROMETHEUS
-# ===================================
 management:
   health:
     livenessstate:
@@ -150,17 +114,18 @@ management:
     readinessstate:
       enabled: true
 
+#Acatuator Configuration
   endpoints:
     web:
       exposure:
-        include: health, info, beans, env, metrics, prometheus
-
+        include: health, info, beans, env, metrics,prometheus
   endpoint:
     health:
       show-details: always
     prometheus:
       enabled: true
-
   metrics:
     tags:
       application: ${spring.application.name}
+            
+     

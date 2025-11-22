@@ -6,6 +6,9 @@ server:
 spring:
   application:
     name: ROOMBILLZ-NOTIFICATION-SERVICE
+    
+  profiles:
+    active: local
 
   main:
     allow-bean-definition-overriding: true

@@ -49,7 +49,7 @@ public interface IPurchaseOrderDetailController {
 	public ResponseEntity<ResponseDto> approveRejectPurchaseOrderDetail(@Parameter(description = "Purchase order details",required = true,content = @Content(schema = @Schema(implementation = ApproveRejectDTO.class)))
 	                                                                    @Valid @RequestBody ApproveRejectDTO approveRejectDTO);
 	
-	@Operation(summary = "Update Approve or Reject Purchase Order Detail status",description = "Approves or Rejects purchase order detail based on internal logic")
+	@Operation(summary = "Update Approve or Reject Purchase Order Detail status (via scheduler)",description = "Approves or Rejects purchase order detail based on internal logic")
 	@ApiResponses(value = {
 	        @ApiResponse(responseCode = "200", description = "Status updated successfully"),
 	        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),

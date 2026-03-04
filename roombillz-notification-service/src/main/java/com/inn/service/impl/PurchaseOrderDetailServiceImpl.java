@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,9 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	
 	@Autowired
 	IApproverUserRepository iApproverUserRepository;
+	
+	@Value("${mail.sender.enabled}")
+	private Boolean isMailEnable;
 
 	@Override
 	public ResponseEntity<ResponseDto> createPurchaseOrder(PurchaseOrderDetailNotificationEvent purchaseOrderDetailNotificationEvent) {
@@ -84,10 +88,11 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	        logger.info("Purchase Order saved Successfully to Database ...........");
 	        
 	        // Sending Mail
+	        if(isMailEnable) {
 	        PurchaseOrderDetail  purchaseOrderDetails = iPurchaseOrderDetailClient.findPurchaseOrderDetailByPurchaseId(purchaseOrderDetail.getPurchaseId()).getBody();
 	        Map<String, Object> templateModel = toTemplateModel(purchaseOrderDetails);
 	        iNotificationSenderService.sendPurchaseOrderEmail(userList.toArray(String[]::new), templateModel);
-	        
+	        }
 	        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto("201","Purchase Order saved Successfully."));
 	    } catch (Exception e) {
 	        logger.error(NotificationServiceConstant.ERROR_OCCURRED_DUE_TO, 
@@ -162,9 +167,10 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	        model.put("reason", dto.getReason());
 	        model.put("approvalTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
 	        String[] array = recipients.toArray(String[]::new);
+	        if(isMailEnable) {
 	        iNotificationSenderService.sendPurchaseOrdeApprovedRejectedEmail(array, model);
 	        logger.info("Status Email + PDF sent to all approvers.");
-
+	        }
 	    } catch (Exception e) {
 	        logger.error("Failed to send status email: {}", e.getMessage());
 	        throw new RuntimeException(e);
@@ -242,7 +248,9 @@ public class PurchaseOrderDetailServiceImpl implements IPurchaseOrderDetailServi
 	                    model.put("currentDate", currentDate);
 	                    model.put("comments", "Status changed from " + (oldStatus.isEmpty() ? "N/A" : oldStatus) + " to " + finalStatus);
 	                    model.put("viewLink", "https://app.roombillz.com/purchase/" + pod.getPurchaseId());
+	                    if(isMailEnable) {
 	                    iNotificationSenderService.sendPurchaseOrderEmailUdateStatus(array,model);
+	                    }
 	                }
 	            }
 	            logger.info("Purchase Order statuses processed.");

@@ -142,7 +142,13 @@ eureka:
 app:
   templates:
     base-uri: "classpath:/templates/"
-
+    
+# ===================================
+# MAIL SENDER
+# ===================================    
+mail:
+  sender:
+    enabled: false 
 # ===================================
 # ACTUATOR + PROMETHEUS
 # ===================================

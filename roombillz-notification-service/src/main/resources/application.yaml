@@ -130,7 +130,8 @@ eureka:
       environment: LOCAL
       version: v1
       region: IN
-
+    prefer-ip-address: true 
+    
   client:
     service-url:
       defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
